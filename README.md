@@ -4,13 +4,33 @@ A small example app: type a folder (or file) path, see the images in it, click o
 
 The viewer itself is a separate, drop-in web component (`<image-viewer>`) so you can reuse it in any other web app, with or without this server.
 
+There are two UIs using the same viewer:
+
+| | Plain HTML + Node server (`server.js`, `public/`) | Angular (`angular/`) |
+|---|---|---|
+| How you choose images | Type a folder path | Pick a folder / files, or paste a URL |
+| Needs a server | Yes (Node) | No — static site |
+| Hosting | Your machine | GitLab Pages (see below) |
+
+See [angular/README.md](angular/README.md) for the Angular app.
+
+## Deploy the Angular UI to GitLab Pages
+
+`.gitlab-ci.yml` builds the Angular app and publishes it. Steps:
+
+1. Push this repository to a GitLab project.
+2. Merge to the default branch (usually `main`). The `pages` job only runs there; other branches only run the `test` job.
+3. When the pipeline is green, open **Deploy > Pages** in the GitLab project to see the URL (typically `https://<user>.gitlab.io/<project>/`).
+
+The app uses a relative base URL, so it works at any sub-path or custom domain without changes.
+
 - **No dependencies to install.** Server uses Node built-ins only. Viewer is plain JavaScript.
 - **Formats:** PNG, APNG, JPEG/JPG, GIF, WebP, AVIF, BMP, ICO, SVG, TIFF/TIF (including multi-page).
 - **Viewer controls:** zoom (buttons, mouse wheel, pinch), pan (drag, arrow keys), fit to window, actual size, rotate, page through multi-page TIFFs.
 
 ![Folder list on the left, image viewer on the right](docs/screenshot.png)
 
-## Run it
+## Run the Node version
 
 Needs Node.js 18 or newer.
 

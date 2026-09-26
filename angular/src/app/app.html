@@ -1,0 +1,50 @@
+<header class="bar">
+  <h1 class="title">Image Viewer</h1>
+  <div class="actions">
+    <button type="button" class="primary" (click)="openFolder()" [disabled]="busy()">Open folder</button>
+    <button type="button" (click)="openFiles()">Open files</button>
+    <button type="button" (click)="showSamples()">Samples</button>
+  </div>
+  <form class="url-form" (submit)="openUrl($event, url.value)">
+    <input #url type="text" inputmode="url" spellcheck="false" placeholder="…or paste an image web address (https://…)" aria-label="Image web address">
+    <button type="submit">Open</button>
+  </form>
+
+  <!-- Fallbacks for browsers without the folder picker (Firefox, Safari, mobile) -->
+  <input #folderInput type="file" webkitdirectory multiple hidden (change)="onInputChange($event, 'Folder')">
+  <input #filesInput type="file" multiple hidden
+         accept="image/*,.tif,.tiff,.heic,.heif,.jxl,.svg,.ico,.bmp,.avif,.webp"
+         (change)="onInputChange($event, 'Selected files')">
+</header>
+
+<main class="layout">
+  <aside class="side">
+    <div class="side-head">
+      <strong class="label" [title]="label()">{{ label() }}</strong>
+      <input type="search" placeholder="Filter…" aria-label="Filter images"
+             [value]="filter()" (input)="filter.set($any($event.target).value)">
+    </div>
+    <p class="status" role="status">{{ status() }}</p>
+    @if (error()) {
+      <p class="status error" role="alert">{{ error() }}</p>
+    }
+    <ul #list class="list" role="listbox" aria-label="Images" tabindex="0" (keydown)="onListKey($event)">
+      @for (entry of rows(); track entry.path) {
+        <li role="option" [attr.aria-selected]="entry === selected()" (click)="select(entry)" [title]="entry.path">
+          <span class="name">{{ entry.name }}</span>
+          @if (folderOf(entry); as folder) {
+            <span class="folder">{{ folder }}</span>
+          }
+          <span class="meta">{{ formatSize(entry.size) }}</span>
+        </li>
+      }
+    </ul>
+    @if (filtered().length > rows().length) {
+      <p class="status">Showing {{ rows().length }} of {{ filtered().length }}. Use the filter to find more.</p>
+    }
+    <p class="hint">Your files stay on your computer. Nothing is uploaded.</p>
+  </aside>
+
+  <app-image-viewer class="viewer" [source]="source()" [filename]="filename()"
+                    (loaded)="onLoaded()" (failed)="onFailed($event)" />
+</main>

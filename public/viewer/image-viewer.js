@@ -12,9 +12,11 @@
 //              fit(), actualSize(), rotate(deg), setPage(index)
 // Events:      imageload  (detail: {width, height, pages, page, format})
 //              imageerror (detail: {message})
+//
+// Bundlers (Angular, Vite, webpack) move this file, so tell it where the
+// vendor/ folder is served:  ImageViewer.vendorBase = '/assets/viewer-vendor/';
 
 const TIFF_EXT = /\.(tiff?)(?:$|[?#])/i;
-const VENDOR_BASE = new URL('./vendor/', import.meta.url);
 const MIN_SCALE = 0.02;
 const MAX_SCALE = 64;
 
@@ -33,8 +35,9 @@ function loadScript(url) {
 function loadTiffLib() {
   if (!tiffLibPromise) {
     tiffLibPromise = (async () => {
-      if (!window.pako) await loadScript(new URL('pako_inflate.min.js', VENDOR_BASE));
-      if (!window.UTIF) await loadScript(new URL('UTIF.js', VENDOR_BASE));
+      const base = new URL(ImageViewer.vendorBase || './vendor/', ImageViewer.vendorBase ? document.baseURI : import.meta.url);
+      if (!window.pako) await loadScript(new URL('pako_inflate.min.js', base));
+      if (!window.UTIF) await loadScript(new URL('UTIF.js', base));
       return window.UTIF;
     })().catch((err) => {
       tiffLibPromise = null;
@@ -171,6 +174,9 @@ const TEMPLATE = `
 `;
 
 export class ImageViewer extends HTMLElement {
+  /** Folder holding UTIF.js + pako_inflate.min.js. Default: ./vendor/ next to this file. */
+  static vendorBase = '';
+
   static get observedAttributes() {
     return ['src', 'filename'];
   }
@@ -411,7 +417,12 @@ export class ImageViewer extends HTMLElement {
   }
 
   async _fetchBytes(url) {
-    const res = await fetch(url);
+    let res;
+    try {
+      res = await fetch(url);
+    } catch {
+      throw new Error('Could not load the image. The address may be wrong, offline, or the site does not allow loading it from here (CORS).');
+    }
     if (!res.ok) {
       let detail = '';
       try {

@@ -1,0 +1,45 @@
+# Builds the Angular UI and publishes it to GitLab Pages.
+# Site URL: GitLab > Deploy > Pages (usually https://<user>.gitlab.io/<project>/)
+
+image: node:22
+
+stages:
+  - test
+  - deploy
+
+cache:
+  key:
+    files:
+      - angular/package-lock.json
+  paths:
+    - .npm/
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+# Every branch and merge request: server tests + make sure the UI builds.
+test:
+  stage: test
+  script:
+    - npm test
+    - cd angular
+    - npm ci --prefer-offline --no-audit
+    - npm run build
+
+# Default branch only: publish the built UI.
+pages:
+  stage: deploy
+  script:
+    - cd angular
+    - npm ci --prefer-offline --no-audit
+    - npm run build
+    - cd ..
+    # GitLab Pages serves the "public" folder. The repo's own public/ (plain
+    # HTML version of the app) is only needed during the build above.
+    - rm -rf public
+    - mv angular/dist/image-viewer-ui/browser public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

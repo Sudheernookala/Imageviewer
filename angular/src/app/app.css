@@ -1,0 +1,44 @@
+:host { display: flex; flex-direction: column; height: 100%; }
+
+.bar {
+  display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap;
+  padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.title { margin: 0; font-size: 16px; font-weight: 600; white-space: nowrap; }
+.actions { display: flex; gap: 6px; }
+.url-form { display: flex; gap: 6px; flex: 1; min-width: 220px; }
+.url-form input { flex: 1; min-width: 0; }
+
+.layout { flex: 1; display: flex; min-height: 0; }
+.side {
+  width: 300px; flex: none; display: flex; flex-direction: column; gap: 6px; min-height: 0;
+  padding: 8px; background: var(--panel); border-right: 1px solid var(--border);
+}
+.side-head { display: flex; flex-direction: column; gap: 6px; }
+.label { padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status { margin: 0; padding: 0 4px; color: var(--muted); font-size: 12px; word-break: break-word; }
+.status.error { color: var(--error); }
+.hint { margin: 0; padding: 4px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--border); }
+
+.list { list-style: none; margin: 0; padding: 0; overflow: auto; flex: 1; border-radius: 6px; }
+.list:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.list li {
+  display: grid; grid-template-columns: 1fr auto; column-gap: 8px;
+  padding: 6px 8px; border-radius: 6px; cursor: pointer;
+}
+.list li:hover { background: var(--hover); }
+.list li[aria-selected=true] { background: var(--selected); }
+.name, .folder { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.folder { grid-column: 1; color: var(--muted); font-size: 12px; }
+.meta { grid-column: 2; grid-row: 1; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.viewer { flex: 1; }
+
+@media (max-width: 700px) {
+  .bar { padding: 8px; }
+  .title { display: none; }
+  .actions { flex: 1; }
+  .actions button { flex: 1; }
+  .layout { flex-direction: column; }
+  .side { width: auto; height: 38%; border-right: 0; border-bottom: 1px solid var(--border); }
+}
