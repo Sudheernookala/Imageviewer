@@ -1,0 +1,67 @@
+:root {
+  --bg: #17181a;
+  --panel: #202124;
+  --fg: #e8e8ea;
+  --muted: #9a9ba1;
+  --border: #33343a;
+  --hover: #2c2d31;
+  --accent: #5b9dff;
+  --selected: #2b3d5c;
+  --error: #e5484d;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f3f3f5;
+    --panel: #ffffff;
+    --fg: #1d1d20;
+    --muted: #6a6b70;
+    --border: #dcdce0;
+    --hover: #f0f0f3;
+    --selected: #dde9ff;
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex; flex-direction: column;
+  background: var(--bg); color: var(--fg);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.bar { padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--border); }
+.path-form { display: flex; gap: 6px; }
+input, button {
+  font: inherit; color: inherit; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px;
+}
+.path-form input { flex: 1; min-width: 0; }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button { cursor: pointer; }
+button:hover { background: var(--hover); }
+button[type=submit] { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.layout { flex: 1; display: flex; min-height: 0; }
+.side {
+  width: 300px; flex: none; display: flex; flex-direction: column; gap: 6px;
+  padding: 8px; background: var(--panel); border-right: 1px solid var(--border); min-height: 0;
+}
+.status { color: var(--muted); font-size: 12px; padding: 0 4px; min-height: 1.4em; word-break: break-all; }
+.status.error { color: var(--error); }
+.list { list-style: none; margin: 0; padding: 0; overflow: auto; flex: 1; }
+.list button {
+  width: 100%; display: flex; align-items: center; gap: 8px; text-align: left;
+  border: 0; border-radius: 6px; background: transparent; padding: 6px 8px;
+}
+.list button:hover { background: var(--hover); }
+.list button[aria-current=true] { background: var(--selected); }
+.list .ico { flex: none; width: 18px; text-align: center; }
+.list .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .meta { flex: none; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+image-viewer { flex: 1; min-width: 0; }
+
+@media (max-width: 700px) {
+  .layout { flex-direction: column; }
+  .side { width: auto; height: 40%; border-right: 0; border-bottom: 1px solid var(--border); }
+  .bar { padding: 8px; }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "imageviewer",
+  "version": "1.0.0",
+  "description": "Folder browser + drop-in <image-viewer> web component (PNG, JPEG, GIF, WebP, AVIF, BMP, ICO, SVG, TIFF)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
