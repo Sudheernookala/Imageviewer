@@ -1,17 +1,22 @@
 // Copies files shared with the rest of the repo into public/ before build/serve:
 //   ../samples               -> public/samples        (demo images shown on first load)
 //   ../public/viewer/vendor  -> public/viewer-vendor  (TIFF decoder, loaded on demand)
+//   ../README.md, ../docs    -> public/guide          (shown by the in-app Guide)
 // and writes public/samples/samples.json, the list of sample images the app shows.
-import { cpSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 
 const copies = [
   ['../samples', 'public/samples'],
   ['../public/viewer/vendor', 'public/viewer-vendor'],
+  ['../docs', 'public/guide/docs'],
 ];
+rmSync('public/guide', { recursive: true, force: true });
 for (const [from, to] of copies) {
   rmSync(to, { recursive: true, force: true });
   cpSync(from, to, { recursive: true });
 }
+mkdirSync('public/guide', { recursive: true });
+cpSync('../README.md', 'public/guide/README.md');
 
 const IMAGE = /\.(png|apng|jpe?g|jfif|gif|webp|avif|bmp|ico|svg|tiff?|heic|heif|jxl)$/i;
 const samples = readdirSync('public/samples')

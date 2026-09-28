@@ -1,0 +1,43 @@
+.guide {
+  width: min(860px, calc(100vw - 32px)); height: min(900px, calc(100vh - 32px));
+  max-width: none; max-height: none; padding: 0;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--panel); color: var(--fg);
+  box-shadow: 0 20px 60px rgb(0 0 0 / .45);
+}
+.guide[open] { display: flex; flex-direction: column; }
+.guide::backdrop { background: rgb(0 0 0 / .6); }
+.guide-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px 8px 20px; border-bottom: 1px solid var(--border);
+}
+.guide-bar h2 { margin: 0; font-size: 15px; flex: 1; }
+.guide-source { color: var(--accent); font-size: 13px; white-space: nowrap; }
+.guide-body {
+  flex: 1; min-height: 0; overflow: auto; padding: 8px 24px 32px;
+  line-height: 1.6; outline: none;
+}
+.guide-content > * { max-width: 72ch; }
+.guide-body h1 { font-size: 24px; margin: 16px 0 8px; }
+.guide-body h2 { font-size: 19px; margin: 32px 0 8px; padding-top: 16px; border-top: 1px solid var(--border); }
+.guide-body h3 { font-size: 16px; margin: 24px 0 6px; }
+.guide-body h1, .guide-body h2, .guide-body h3 { line-height: 1.3; text-wrap: balance; scroll-margin-top: 12px; }
+.guide-body p, .guide-body ul, .guide-body ol { margin: 8px 0; }
+.guide-body li { margin: 4px 0; }
+.guide-body a { color: var(--accent); }
+.guide-body img { display: block; max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 8px; }
+.guide-body code {
+  font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: var(--hover); border-radius: 4px; padding: 1px 5px;
+}
+.guide-body pre { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+.guide-body pre code { background: none; padding: 0; }
+.guide-body .table-wrap { overflow-x: auto; max-width: 100%; }
+.guide-body table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+.guide-body th, .guide-body td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; vertical-align: top; }
+.guide-body th { background: var(--hover); }
+@media (max-width: 700px) {
+  .guide { width: 100vw; height: 100dvh; border-radius: 0; border: 0; }
+  .guide-bar { padding-left: 16px; }
+  .guide-body { padding: 4px 16px 24px; }
+}

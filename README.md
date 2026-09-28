@@ -1,62 +1,157 @@
 # Image Viewer
 
-A small example app: type a folder (or file) path, see the images in it, click one to view it.
+Open a folder of images, see them as a list, and click one to view it in a popup. Works with PNG, JPG, SVG, WebP, BMP, GIF, AVIF, ICO and TIFF (including multi-page TIFF).
 
-The viewer itself is a separate, drop-in web component (`<image-viewer>`) so you can reuse it in any other web app, with or without this server.
+**Live app:** https://sudheernookala.github.io/Imageviewer/
 
-There are two UIs using the same viewer:
+![An image open in the popup viewer, over the image list](docs/angular-screenshot.png)
 
-| | Plain HTML + Node server (`server.js`, `public/`) | Angular (`angular/`) |
-|---|---|---|
-| How you choose images | Type a folder path | Pick a folder or files; click an image to open it in a popup |
-| Needs a server | Yes (Node) | No — static site |
-| Hosting | Your machine | GitLab Pages (see below) |
+The viewer is a separate, drop-in web component (`<image-viewer>`), so you can reuse it in your own web app.
 
-See [angular/README.md](angular/README.md) for the Angular app.
+**Contents**
 
-## Deploy the Angular UI to GitHub Pages
+- [Using the app](#using-the-app)
+- [Supported formats](#supported-formats)
+- [Set up](#set-up): [run it on your computer](#run-the-app-on-your-computer) · [deploy to GitHub Pages](#deploy-to-github-pages) · [deploy to GitLab Pages](#deploy-to-gitlab-pages) · [Node version](#node-version-type-a-folder-path)
+- [Use the viewer in your own app](#use-the-viewer-in-your-own-app)
 
-`.github/workflows/pages.yml` builds the Angular app and publishes it on every push to the default branch.
+## Using the app
 
-1. One-time: in the GitHub repo open **Settings > Pages**, and under **Build and deployment > Source** choose **GitHub Actions**.
-2. Push to the default branch (or run the workflow from the **Actions** tab).
-3. The site is at `https://<user>.github.io/<repo>/`, for this repo https://sudheernookala.github.io/Imageviewer/.
+1. The app opens with a list of sample images.
+2. Click **Open folder** to list all images in a folder on your computer, including subfolders. Or click **Open files** to pick single images (use this on phones).
+3. Click an image to open it in the popup viewer.
+4. Close the popup with **Esc**, the **✕** button, or a click on the dark area around it.
 
-## Deploy the Angular UI to GitLab Pages
+Your files stay on your computer. The app reads them inside your browser and uploads nothing.
 
-`.gitlab-ci.yml` builds the Angular app and publishes it. Steps:
+**In the list:** type in **Filter by name** to narrow it down. ↑ / ↓ move through the list and **Enter** opens the image.
 
-1. Push this repository to a GitLab project.
-2. Merge to the default branch (usually `main`). The `pages` job only runs there; other branches only run the `test` job.
-3. When the pipeline is green, open **Deploy > Pages** in the GitLab project to see the URL (typically `https://<user>.gitlab.io/<project>/`).
+**In the popup:**
 
-The app uses a relative base URL, so it works at any sub-path or custom domain without changes.
+| Action | How |
+|---|---|
+| Next / previous image | **Prev** / **Next** buttons, or ← / → |
+| Zoom | **+** / **−** buttons, mouse wheel, or pinch |
+| Move a zoomed image | Drag it |
+| Fit to window / actual size | Toolbar buttons |
+| Rotate | Toolbar buttons |
+| Pages of a multi-page TIFF | ‹ / › in the toolbar |
 
-- **No dependencies to install.** Server uses Node built-ins only. Viewer is plain JavaScript.
-- **Formats:** PNG, APNG, JPEG/JPG, GIF, WebP, AVIF, BMP, ICO, SVG, TIFF/TIF (including multi-page).
-- **Viewer controls:** zoom (buttons, mouse wheel, pinch), pan (drag, arrow keys), fit to window, actual size, rotate, page through multi-page TIFFs.
+Keyboard shortcuts inside the image: click the image first, then use + / − to zoom, 0 to fit, 1 for actual size, R / Shift+R to rotate, Page Up / Page Down for TIFF pages, and the arrow keys to move the image. While the image has focus, ← / → move it instead of switching images; use **Prev** / **Next** then.
 
-![Folder list on the left, image viewer on the right](docs/screenshot.png)
+### Open folder in each browser
 
-## Run the Node version
+| Browser | What happens |
+|---|---|
+| Chrome, Edge, Opera (desktop) | A folder picker opens. Files are read only when you open them. |
+| Firefox, Safari (desktop) | A folder "upload" dialog opens. Despite the wording, nothing is uploaded. |
+| Phones and tablets | Mobile browsers can't pick folders. Use **Open files**. |
+| The app embedded in another page | Uses the "upload" style dialog, because browsers block the folder picker there. |
 
-Needs Node.js 18 or newer.
+The app can't open a folder from a typed path like `C:\Photos`. Browsers don't let websites read files by path, so you pick the folder instead. If you need typed paths, use the [Node version](#node-version-type-a-folder-path).
+
+Very large folders: the list stops at 20,000 images and shows 1,000 rows at a time. Use the filter to find the rest.
+
+## Supported formats
+
+| Format | Support |
+|---|---|
+| PNG, APNG, JPEG/JPG, GIF, WebP, AVIF, BMP, ICO, SVG | Every modern browser |
+| TIFF / TIF, including multi-page | Every modern browser. The viewer decodes TIFF itself with [UTIF.js](https://github.com/photopea/UTIF.js). |
+| HEIC / HEIF, JPEG XL | Safari only. Other browsers show a "cannot display" message. |
+| Camera RAW (CR2, NEF, ARW, DNG), PSD, EXR | Not supported. These need a converter on a server. |
+
+A TIFF file with the wrong extension still opens, because the viewer checks the file's first bytes. Very large TIFFs (hundreds of megapixels) are slow, because they are decoded in the browser.
+
+## Set up
+
+### Project layout
+
+| Folder / file | What it is |
+|---|---|
+| `angular/` | The web app (Angular 21). This is what GitHub Pages hosts. |
+| `public/viewer/` | The `<image-viewer>` component, shared by both apps. `vendor/` holds the TIFF decoder. |
+| `samples/` | The sample images the app shows first. |
+| `server.js`, `public/` | The Node version (type a folder path). |
+| `.github/workflows/pages.yml` | Builds and publishes the app to GitHub Pages. |
+| `.gitlab-ci.yml` | The same for GitLab Pages. |
+
+### Run the app on your computer
+
+You need [Node.js](https://nodejs.org/) 20.19+, 22.12+ or 24+.
+
+```bash
+cd angular
+npm install
+npm start          # opens at http://localhost:4200
+```
+
+To build the files for hosting:
+
+```bash
+npm run build      # output: angular/dist/image-viewer-ui/browser
+```
+
+Both commands first copy `samples/`, the TIFF decoder and this README (for the in-app guide) into `angular/public/`.
+
+### Change the sample images
+
+Add or remove images in the `samples/` folder and deploy again. No code change is needed. The samples are public on the hosted site, so don't put private images there.
+
+### Deploy to GitHub Pages
+
+1. In the GitHub repository, open **Settings > Pages**. Under **Build and deployment > Source**, choose **GitHub Actions**. You only do this once.
+2. Push to the default branch. The workflow in `.github/workflows/pages.yml` tests, builds and publishes the app. You can also run it by hand from the **Actions** tab.
+3. After about a minute the app is at `https://<user>.github.io/<repo>/`. For this repository that is https://sudheernookala.github.io/Imageviewer/.
+
+Only the default branch is published. Other branches and pull requests are built and tested, but not published.
+
+If the site shows this README instead of the app, step 1 was skipped. Change the setting and run the workflow again.
+
+### Deploy to GitLab Pages
+
+1. Push the repository to a GitLab project.
+2. Merge into the default branch (usually `main`). The `pages` job in `.gitlab-ci.yml` only runs there.
+3. When the pipeline passes, open **Deploy > Pages** in the GitLab project to find the address.
+
+The app works at any address or sub-folder without changes.
+
+### Show the web-address box
+
+Opening an image from a web address is built but hidden. To show it, set `SHOW_URL_INPUT = true` in `angular/src/app/app.ts`. Many websites don't allow other sites to load their images, so it won't work for every address.
+
+### Node version (type a folder path)
+
+A simpler version that runs on your own computer, where you type a folder path. It needs Node.js 18+ and no `npm install`.
 
 ```bash
 node server.js                          # allowed folder = your home folder
 node server.js --root /path/to/pictures # only allow this folder
-node server.js --root samples           # try the included sample images
+node server.js --root samples           # try it with the sample images
 ```
 
-Open http://127.0.0.1:3000 and type a path, for example `/home/me/Pictures` or `C:\Users\me\Pictures`. A file path also works: it opens the folder and shows that file.
+Open http://127.0.0.1:3000 and type a path such as `/home/me/Pictures` or `C:\Users\me\Pictures`. A file path also works: it opens that file's folder and shows the file.
 
 Options (or environment variables): `--root` (`IMAGE_ROOT`), `--port` (`PORT`, default 3000), `--host` (`HOST`, default `127.0.0.1`).
 
-Run tests: `npm test`
+Security:
+
+- It only reads inside the `--root` folder. Paths with `..` and links pointing outside are refused.
+- It only sends image files, never other files.
+- It only accepts connections from your own computer by default. Don't use `--host 0.0.0.0` on a shared network: there is no login.
+- SVG files are sent with rules that stop scripts inside them from running.
+
+### Run the tests
+
+```bash
+npm test           # in the repository root: tests for the Node version
+```
 
 ## Use the viewer in your own app
 
-Copy the `public/viewer/` folder (the component plus its `vendor/` folder) into your project.
+### Any web page
+
+Copy the `public/viewer/` folder into your project, including `vendor/`.
 
 ```html
 <script type="module" src="viewer/image-viewer.js"></script>
@@ -64,7 +159,7 @@ Copy the `public/viewer/` folder (the component plus its `vendor/` folder) into 
 <image-viewer src="photos/cat.tif" style="height: 500px"></image-viewer>
 ```
 
-It works with any image URL. It also works with a `File`, `Blob`, or `ArrayBuffer`, so you don't need a server at all:
+It accepts an image URL, or a `File`, `Blob` or `ArrayBuffer`, so it works without a server:
 
 ```html
 <input type="file" accept="image/*,.tif,.tiff" id="pick">
@@ -76,39 +171,31 @@ It works with any image URL. It also works with a `File`, `Blob`, or `ArrayBuffe
 </script>
 ```
 
-In React, Vue, Angular, etc. use it like any HTML tag (`<image-viewer src={url} />`) and call its methods through a ref.
+If a bundler (Angular, Vite, webpack) moves `image-viewer.js`, tell it where the `vendor/` files are served: `ImageViewer.vendorBase = 'viewer-vendor/';`
 
-### API
+### Angular
+
+Copy `angular/src/app/image-viewer/image-viewer.component.ts` and the `public/viewer/` folder, fix the import path, serve the `vendor/` files as assets, and set `ImageViewer.vendorBase`. Then:
+
+```html
+<app-image-viewer [source]="fileOrUrl" [filename]="name"
+                  (loaded)="onLoaded($event)" (failed)="onError($event)" />
+```
+
+`source` takes a URL, a `File`/`Blob`, or `null` to clear. To zoom or rotate from code, get the component with `viewChild` and call `.viewer.zoomIn()`, `.viewer.rotate(90)` and so on.
+
+### Viewer API
 
 | | |
 |---|---|
-| **Attributes** | `src` – image URL · `filename` – name used to detect the type when the URL has no extension · `no-toolbar` – hide the toolbar |
+| **Attributes** | `src` (image URL) · `filename` (name used to detect the type when the URL has no extension) · `no-toolbar` (hide the toolbar) |
 | **Methods** | `load(source, { filename })` · `clear()` · `zoomIn()` · `zoomOut()` · `zoomTo(scale)` · `fit()` · `actualSize()` · `rotate(deg)` · `setPage(index)` |
 | **Property** | `state` → `{ width, height, scale, rotation, page, pages, format }` |
 | **Events** | `imageload` (detail = `state`) · `imageerror` (detail = `{ message }`) |
-| **Keyboard** (when the image area has focus) | `+` / `-` zoom · `0` fit · `1` actual size · `R` / `Shift+R` rotate · arrows pan · `PageUp` / `PageDown` TIFF pages |
+| **Static** | `ImageViewer.vendorBase`: where the TIFF decoder files are served |
 | **Styling** | CSS variables `--iv-bg`, `--iv-fg`, `--iv-muted`, `--iv-toolbar-bg`, `--iv-border`, `--iv-accent`, `--iv-checker`, `--iv-error`; parts `::part(toolbar)`, `::part(stage)`, `::part(image)` |
 
-## Server API
-
-If you want to reuse the backend instead:
+### Node server API
 
 - `GET /api/list?path=<folder or file>` → `{ root, path, parent, selected, dirs: [{name, path}], files: [{name, path, size, modified, type}] }`
 - `GET /api/file?path=<file>` → the image bytes with the correct `Content-Type`
-
-## How format support works (and its limits)
-
-- Formats the browser supports are shown directly by the browser.
-- TIFF is not supported by most browsers, so the viewer decodes it in the browser using [UTIF.js](https://github.com/photopea/UTIF.js) (MIT), loaded only when a TIFF is opened. Files are detected by extension or by their first bytes, so a TIFF with the wrong extension still opens.
-- **Not supported everywhere:** HEIC/HEIF (Safari only) and JPEG XL (Safari only). They are listed, but other browsers show a clear "cannot display" message.
-- **Not supported:** camera RAW (CR2, NEF, ARW, DNG), PSD, EXR. These need a server-side converter (e.g. `sharp` or ImageMagick) — add one to `/api/file` if you need them.
-- TIFF decoding happens in the browser tab. Very large TIFFs (hundreds of megapixels) will be slow and use a lot of memory; for those, convert on the server.
-
-## Security
-
-The server can read files, so:
-
-- It only reads inside the `--root` folder. `..` paths and symlinks that point outside are refused.
-- It only serves image files, never other files.
-- It listens on `127.0.0.1` by default (only your computer). Don't use `--host 0.0.0.0` on a shared network unless you add login.
-- SVG files are served with a strict Content-Security-Policy, so scripts inside an SVG cannot run.
