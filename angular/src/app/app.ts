@@ -1,6 +1,16 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterNextRender,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { ImageViewerState } from '../../../public/viewer/image-viewer.js';
 import { FileSourceService, ScanResult } from './file-source.service';
+import { GuideComponent } from './guide/guide.component';
 import { ImageEntry, formatSize } from './image-files';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
@@ -12,7 +22,7 @@ const SHOW_URL_INPUT = false;
 
 @Component({
   selector: 'app-root',
-  imports: [ImageViewerComponent],
+  imports: [ImageViewerComponent, GuideComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,11 +64,39 @@ export class App {
   private readonly filesInput = viewChild.required<ElementRef<HTMLInputElement>>('filesInput');
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
+  private readonly guide = viewChild.required(GuideComponent);
   private openToken = 0;
 
   constructor() {
     // Show something straight away: the bundled samples.
     this.showSamples();
+    // ".../#guide" opens the guide directly, so the link can be shared.
+    afterNextRender(() => {
+      this.syncGuideWithAddress();
+      window.addEventListener('hashchange', () => this.syncGuideWithAddress());
+    });
+  }
+
+  protected openGuide(event: Event) {
+    event.preventDefault();
+    this.setAddressHash('#guide');
+    this.guide().open();
+  }
+
+  protected onGuideClosed() {
+    if (location.hash === '#guide') this.setAddressHash('');
+  }
+
+  private syncGuideWithAddress() {
+    if (location.hash === '#guide') this.guide().open();
+  }
+
+  private setAddressHash(hash: string) {
+    try {
+      history.replaceState(history.state, '', location.pathname + location.search + hash);
+    } catch {
+      // Some embedding pages don't allow changing the address; the guide still works.
+    }
   }
 
   protected async openFolder() {

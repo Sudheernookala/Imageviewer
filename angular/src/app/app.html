@@ -5,6 +5,7 @@
     <button type="button" (click)="openFiles()">Open files</button>
     <button type="button" (click)="showSamples()">Samples</button>
   </div>
+  <a class="guide-link" href="#guide" (click)="openGuide($event)">Guide</a>
   @if (showUrlInput) {
     <form class="url-form" (submit)="openUrl($event, url.value)">
       <input #url type="text" inputmode="url" spellcheck="false" placeholder="…or paste an image web address (https://…)" aria-label="Image web address">
@@ -79,3 +80,5 @@
   <app-image-viewer class="popup-viewer" [source]="source()" [filename]="filename()"
                     (loaded)="onLoaded($event)" (failed)="onFailed($event)" />
 </dialog>
+
+<app-guide (closed)="onGuideClosed()" />
