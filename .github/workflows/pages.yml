@@ -1,0 +1,60 @@
+# Builds the Angular UI and publishes it to GitHub Pages.
+# One-time setup: Settings > Pages > Build and deployment > Source = "GitHub Actions".
+# Site URL: https://<user>.github.io/<repo>/
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: angular/package-lock.json
+
+      - name: Server tests
+        run: npm test
+
+      - name: Install
+        working-directory: angular
+        run: npm ci --no-audit
+
+      - name: Build
+        working-directory: angular
+        run: npm run build
+
+      - name: Upload site
+        if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: angular/dist/image-viewer-ui/browser
+
+  # Only the default branch is published.
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

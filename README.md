@@ -14,6 +14,14 @@ There are two UIs using the same viewer:
 
 See [angular/README.md](angular/README.md) for the Angular app.
 
+## Deploy the Angular UI to GitHub Pages
+
+`.github/workflows/pages.yml` builds the Angular app and publishes it on every push to the default branch.
+
+1. One-time: in the GitHub repo open **Settings > Pages**, and under **Build and deployment > Source** choose **GitHub Actions**.
+2. Push to the default branch (or run the workflow from the **Actions** tab).
+3. The site is at `https://<user>.github.io/<repo>/`, for this repo https://sudheernookala.github.io/Imageviewer/.
+
 ## Deploy the Angular UI to GitLab Pages
 
 `.gitlab-ci.yml` builds the Angular app and publishes it. Steps:
