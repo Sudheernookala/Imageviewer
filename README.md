@@ -8,7 +8,7 @@ There are two UIs using the same viewer:
 
 | | Plain HTML + Node server (`server.js`, `public/`) | Angular (`angular/`) |
 |---|---|---|
-| How you choose images | Type a folder path | Pick a folder / files, or paste a URL |
+| How you choose images | Type a folder path | Pick a folder or files; click an image to open it in a popup |
 | Needs a server | Yes (Node) | No — static site |
 | Hosting | Your machine | GitLab Pages (see below) |
 

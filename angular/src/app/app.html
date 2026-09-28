@@ -5,46 +5,77 @@
     <button type="button" (click)="openFiles()">Open files</button>
     <button type="button" (click)="showSamples()">Samples</button>
   </div>
-  <form class="url-form" (submit)="openUrl($event, url.value)">
-    <input #url type="text" inputmode="url" spellcheck="false" placeholder="…or paste an image web address (https://…)" aria-label="Image web address">
-    <button type="submit">Open</button>
-  </form>
+  @if (showUrlInput) {
+    <form class="url-form" (submit)="openUrl($event, url.value)">
+      <input #url type="text" inputmode="url" spellcheck="false" placeholder="…or paste an image web address (https://…)" aria-label="Image web address">
+      <button type="submit">Open</button>
+    </form>
+  }
 
-  <!-- Fallbacks for browsers without the folder picker (Firefox, Safari, mobile) -->
+  <!-- Fallbacks for browsers without the folder picker (Firefox, Safari, mobile, embedded pages) -->
   <input #folderInput type="file" webkitdirectory multiple hidden (change)="onInputChange($event, 'Folder')">
   <input #filesInput type="file" multiple hidden
          accept="image/*,.tif,.tiff,.heic,.heif,.jxl,.svg,.ico,.bmp,.avif,.webp"
          (change)="onInputChange($event, 'Selected files')">
 </header>
 
-<main class="layout">
-  <aside class="side">
-    <div class="side-head">
-      <strong class="label" [title]="label()">{{ label() }}</strong>
-      <input type="search" placeholder="Filter…" aria-label="Filter images"
-             [value]="filter()" (input)="filter.set($any($event.target).value)">
+<main class="content">
+  <div class="list-head">
+    <div class="list-title">
+      <h2 [title]="label()">{{ label() }}</h2>
+      <p class="status" role="status">{{ status() }}</p>
     </div>
-    <p class="status" role="status">{{ status() }}</p>
-    @if (error()) {
-      <p class="status error" role="alert">{{ error() }}</p>
-    }
-    <ul #list class="list" role="listbox" aria-label="Images" tabindex="0" (keydown)="onListKey($event)">
-      @for (entry of rows(); track entry.path) {
-        <li role="option" [attr.aria-selected]="entry === selected()" (click)="select(entry)" [title]="entry.path">
-          <span class="name">{{ entry.name }}</span>
-          @if (folderOf(entry); as folder) {
-            <span class="folder">{{ folder }}</span>
-          }
-          <span class="meta">{{ formatSize(entry.size) }}</span>
-        </li>
-      }
-    </ul>
-    @if (filtered().length > rows().length) {
-      <p class="status">Showing {{ rows().length }} of {{ filtered().length }}. Use the filter to find more.</p>
-    }
-    <p class="hint">Your files stay on your computer. Nothing is uploaded.</p>
-  </aside>
+    <input id="filter" type="search" placeholder="Filter by name…" aria-label="Filter images"
+           [value]="filter()" (input)="filter.set($any($event.target).value)">
+  </div>
+  @if (error()) {
+    <p class="status error" role="alert">{{ error() }}</p>
+  }
 
-  <app-image-viewer class="viewer" [source]="source()" [filename]="filename()"
-                    (loaded)="onLoaded()" (failed)="onFailed($event)" />
+  <ul #list class="list" aria-label="Images" (keydown)="onListKey($event)">
+    @for (entry of rows(); track entry.path) {
+      <li>
+        <button type="button" [attr.data-path]="entry.path" [title]="'Open ' + entry.path" (click)="openViewer(entry)">
+          <span class="type">{{ typeOf(entry) }}</span>
+          <span class="name">{{ entry.name }}</span>
+          <span class="folder">{{ folderOf(entry) }}</span>
+          <span class="size">{{ formatSize(entry.size) }}</span>
+        </button>
+      </li>
+    } @empty {
+      <li class="empty">
+        @if (filter()) { No images match “{{ filter() }}”. } @else { Open a folder or files to see your images here. }
+      </li>
+    }
+  </ul>
+  @if (filtered().length > rows().length) {
+    <p class="status">Showing {{ rows().length }} of {{ filtered().length }}. Use the filter to find more.</p>
+  }
+  <p class="hint">Click an image to open it. Your files stay on your computer; nothing is uploaded.</p>
 </main>
+
+<dialog #dialog class="popup" aria-labelledby="popup-title"
+        (close)="onDialogClosed()" (pointerdown)="onDialogPointerDown($event)" (click)="onDialogClick($event)" (keydown)="onDialogKey($event)">
+  @if (current(); as entry) {
+    <header class="popup-bar">
+      <div class="popup-title">
+        <h2 id="popup-title" [title]="entry.path">{{ entry.name }}</h2>
+        <p class="status">
+          @if (position() >= 0) { {{ position() + 1 }} / {{ filtered().length }} · }
+          {{ imageInfo() }}
+        </p>
+      </div>
+      <div class="popup-actions">
+        <button type="button" (click)="step(-1)" [disabled]="position() <= 0" aria-label="Previous image" title="Previous (←)">‹ Prev</button>
+        <button type="button" (click)="step(1)" [disabled]="position() < 0 || position() >= filtered().length - 1"
+                aria-label="Next image" title="Next (→)">Next ›</button>
+        <button type="button" class="close" (click)="closeViewer()" aria-label="Close" title="Close (Esc)">✕</button>
+      </div>
+    </header>
+    @if (viewerError()) {
+      <p class="status error popup-error" role="alert">{{ viewerError() }}</p>
+    }
+  }
+  <app-image-viewer class="popup-viewer" [source]="source()" [filename]="filename()"
+                    (loaded)="onLoaded($event)" (failed)="onFailed($event)" />
+</dialog>

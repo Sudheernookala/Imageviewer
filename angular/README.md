@@ -7,11 +7,12 @@ It is a static site (no server), so it can be hosted on GitLab Pages.
 
 ## What it does
 
-- Opens with the sample images, so there is always something to see.
+- Opens with a list of sample images, so there is always something to see.
+- **Click an image** to open it in a popup viewer (zoom, pan, rotate, TIFF pages). Use **Prev / Next** or ←/→ to move through the list; **Esc**, **✕** or a click outside closes it.
 - **Open folder:** pick a folder on your computer; all images inside it (including subfolders) are listed.
 - **Open files:** pick one or more image files (also works on phones).
-- **Web address:** paste an image URL.
-- Filter the list, use ↑/↓ to move through images.
+- Filter the list by name; ↑/↓ move through it and Enter opens an image.
+- Opening an image from a web address is built but hidden for now. Set `SHOW_URL_INPUT = true` in `src/app/app.ts` to bring it back.
 - Files are read inside the browser. Nothing is uploaded.
 
 Why no "type a path" box like the Node app? Browsers do not let a website read `C:\Photos` or `/home/me/Pictures` by path. The user has to pick the folder. That is a browser security rule, not a missing feature.
