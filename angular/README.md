@@ -27,7 +27,9 @@ npm start        # http://localhost:4200
 npm run build    # output: dist/image-viewer-ui/browser
 ```
 
-`npm start` / `npm run build` first run `scripts/copy-shared.mjs`, which copies `../samples` and the TIFF decoder (`../public/viewer/vendor`) into `public/`.
+`npm start` / `npm run build` first run `scripts/copy-shared.mjs`, which copies `../samples` and the TIFF decoder (`../public/viewer/vendor`) into `public/`, and writes the sample list `public/samples/samples.json`.
+
+To change the images people see when they open the site, add or remove files in the repo's `samples/` folder. No code change needed. They are public on the deployed site.
 
 ## Use the viewer in your own Angular app
 
@@ -45,6 +47,7 @@ Copy `src/app/image-viewer/image-viewer.component.ts` and the `public/viewer/` f
 | Browser | "Open folder" |
 |---|---|
 | Chrome, Edge, Opera (desktop) | Native folder picker. Reads files only when you click them. |
+| Any browser, when the app is embedded in another page (iframe) | Falls back to the folder upload dialog below. |
 | Firefox, Safari (desktop) | Folder upload dialog. The browser reads the file list up front; still nothing leaves your computer. |
 | Phones / tablets | Folder picking is not supported by mobile browsers. Use **Open files**. |
 

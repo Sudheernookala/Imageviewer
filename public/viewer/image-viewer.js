@@ -84,6 +84,7 @@ const TEMPLATE = `
     --iv-border: #3a3b40;
     --iv-accent: #5b9dff;
     --iv-checker: #2a2b2f;
+    --iv-error: #f2555a;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -102,6 +103,7 @@ const TEMPLATE = `
       --iv-toolbar-bg: #ffffff;
       --iv-border: #d9d9de;
       --iv-checker: #e4e4e8;
+      --iv-error: #c9282d;
     }
   }
   .toolbar {
@@ -147,7 +149,7 @@ const TEMPLATE = `
     background: var(--iv-bg);
   }
   .message[hidden] { display: none; }
-  .message.error { color: #e5484d; }
+  .message.error { color: var(--iv-error); }
 </style>
 <div class="toolbar" part="toolbar">
   <button data-act="zoomOut" title="Zoom out (-)" aria-label="Zoom out">${icon('zoomOut')}</button>

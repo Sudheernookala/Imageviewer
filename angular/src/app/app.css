@@ -2,7 +2,7 @@
 
 .bar {
   display: flex; align-items: center; gap: 8px 16px; flex-wrap: wrap;
-  padding: 8px 12px; background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--border);
 }
 .title { margin: 0; font-size: 16px; font-weight: 600; white-space: nowrap; }
 .actions { display: flex; gap: 6px; }
@@ -35,10 +35,10 @@
 .viewer { flex: 1; }
 
 @media (max-width: 700px) {
-  .bar { padding: 8px; }
+  .bar { padding: 8px 16px; }
   .title { display: none; }
   .actions { flex: 1; }
   .actions button { flex: 1; }
   .layout { flex-direction: column; }
-  .side { width: auto; height: 38%; border-right: 0; border-bottom: 1px solid var(--border); }
+  .side { width: auto; height: 38%; padding: 8px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
 }

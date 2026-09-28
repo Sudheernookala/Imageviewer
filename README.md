@@ -79,7 +79,7 @@ In React, Vue, Angular, etc. use it like any HTML tag (`<image-viewer src={url} 
 | **Property** | `state` → `{ width, height, scale, rotation, page, pages, format }` |
 | **Events** | `imageload` (detail = `state`) · `imageerror` (detail = `{ message }`) |
 | **Keyboard** (when the image area has focus) | `+` / `-` zoom · `0` fit · `1` actual size · `R` / `Shift+R` rotate · arrows pan · `PageUp` / `PageDown` TIFF pages |
-| **Styling** | CSS variables `--iv-bg`, `--iv-fg`, `--iv-muted`, `--iv-toolbar-bg`, `--iv-border`, `--iv-accent`, `--iv-checker`; parts `::part(toolbar)`, `::part(stage)`, `::part(image)` |
+| **Styling** | CSS variables `--iv-bg`, `--iv-fg`, `--iv-muted`, `--iv-toolbar-bg`, `--iv-border`, `--iv-accent`, `--iv-checker`, `--iv-error`; parts `::part(toolbar)`, `::part(stage)`, `::part(image)` |
 
 ## Server API
 

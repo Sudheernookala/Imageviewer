@@ -17,10 +17,15 @@ export interface ScanResult {
   truncated: boolean;
 }
 
-/** Sample images deployed with the app (copied from ../samples at build time). */
-const SAMPLES = [
-  'sample.png', 'sample.jpg', 'sample.webp', 'sample.svg', 'sample.bmp', 'sample.tif', 'multipage.tiff',
-];
+/**
+ * One line of samples/samples.json (generated from ../samples at build time).
+ * `data` (base64) is optional: it lets a host that can't serve a file type (e.g. .tif) ship it inline.
+ */
+interface SampleInfo {
+  name: string;
+  size?: number;
+  data?: string;
+}
 
 const MAX_IMAGES = 20000;
 const SKIP_DIRS = new Set(['node_modules', '$RECYCLE.BIN', 'System Volume Information']);
@@ -32,14 +37,21 @@ const SKIP_DIRS = new Set(['node_modules', '$RECYCLE.BIN', 'System Volume Inform
  */
 @Injectable({ providedIn: 'root' })
 export class FileSourceService {
-  /** True in Chrome/Edge/Opera: the nicer folder picker that reads files on demand. */
-  readonly canPickDirectory = typeof window !== 'undefined' && !!window.showDirectoryPicker;
+  /**
+   * True in Chrome/Edge/Opera: the nicer folder picker that reads files on demand.
+   * Browsers block it inside embedded frames, so there we use the file-input fallback.
+   */
+  readonly canPickDirectory = typeof window !== 'undefined' && !!window.showDirectoryPicker && window.self === window.top;
 
-  samples(): ScanResult {
-    const entries = SAMPLES.map<ImageEntry>((name) => ({
-      name,
-      path: name,
-      open: async () => `samples/${name}`,
+  async samples(): Promise<ScanResult> {
+    const res = await fetch('samples/samples.json');
+    if (!res.ok) throw new Error(`Could not load the sample list (HTTP ${res.status})`);
+    const list = (await res.json()) as SampleInfo[];
+    const entries = list.map<ImageEntry>((s) => ({
+      name: s.name,
+      path: s.name,
+      size: s.size,
+      open: async () => (s.data ? base64ToBlob(s.data) : `samples/${encodeURIComponent(s.name)}`),
     }));
     return { label: 'Sample images', entries, truncated: false };
   }
@@ -94,4 +106,11 @@ export class FileSourceService {
     const top = files[0]?.webkitRelativePath?.split('/')[0];
     return { label: top || label, entries, truncated: entries.length >= MAX_IMAGES };
   }
+}
+
+function base64ToBlob(data: string): Blob {
+  const bin = atob(data);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes]);
 }

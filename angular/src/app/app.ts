@@ -43,7 +43,7 @@ export class App {
 
   constructor() {
     // Show something straight away: the bundled samples.
-    this.show(this.files.samples());
+    this.showSamples();
   }
 
   protected async openFolder() {
@@ -74,8 +74,12 @@ export class App {
     input.value = ''; // allow picking the same folder again
   }
 
-  protected showSamples() {
-    this.show(this.files.samples());
+  protected async showSamples() {
+    try {
+      this.show(await this.files.samples());
+    } catch (err) {
+      this.setError((err as Error).message);
+    }
   }
 
   protected openUrl(event: Event, url: string) {

@@ -1,3 +1,4 @@
+/* Dark-first palette. Follows the OS setting, or data-theme="light|dark" on <html> when a host sets it. */
 :root {
   --bg: #17181a;
   --panel: #202124;
@@ -6,21 +7,39 @@
   --border: #33343a;
   --hover: #2c2d31;
   --accent: #5b9dff;
+  --on-accent: #ffffff;
   --selected: #2b3d5c;
-  --error: #e5484d;
+  --error: #f2555a;
+  --checker: #2a2b2f;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --bg: #f3f3f5;
     --panel: #ffffff;
     --fg: #1d1d20;
-    --muted: #6a6b70;
+    --muted: #62636a;
     --border: #dcdce0;
     --hover: #f0f0f3;
+    --accent: #2f6fdb;
     --selected: #dde9ff;
+    --error: #c9282d;
+    --checker: #e4e4e8;
     color-scheme: light;
   }
+}
+:root[data-theme="light"] {
+  --bg: #f3f3f5;
+  --panel: #ffffff;
+  --fg: #1d1d20;
+  --muted: #62636a;
+  --border: #dcdce0;
+  --hover: #f0f0f3;
+  --accent: #2f6fdb;
+  --selected: #dde9ff;
+  --error: #c9282d;
+  --checker: #e4e4e8;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
@@ -37,4 +56,16 @@ input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); ou
 button { cursor: pointer; white-space: nowrap; }
 button:hover:not(:disabled) { background: var(--hover); }
 button:disabled { opacity: .5; cursor: default; }
-button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+/* Make <image-viewer> use the app's palette (page styles override the component's defaults). */
+image-viewer {
+  --iv-bg: var(--bg);
+  --iv-fg: var(--fg);
+  --iv-muted: var(--muted);
+  --iv-toolbar-bg: var(--panel);
+  --iv-border: var(--border);
+  --iv-accent: var(--accent);
+  --iv-checker: var(--checker);
+  --iv-error: var(--error);
+}
