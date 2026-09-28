@@ -100,13 +100,17 @@ Add or remove images in the `samples/` folder and deploy again. No code change i
 
 ### Deploy to GitHub Pages
 
-1. In the GitHub repository, open **Settings > Pages**. Under **Build and deployment > Source**, choose **GitHub Actions**. You only do this once.
-2. Push to the default branch. The workflow in `.github/workflows/pages.yml` tests, builds and publishes the app. You can also run it by hand from the **Actions** tab.
+The site is published from the **`dev`** branch.
+
+1. One-time, in the GitHub repository:
+   - **Settings > Pages > Build and deployment > Source:** choose **GitHub Actions**. Do not choose "Deploy from a branch": that publishes this README as the home page instead of the app.
+   - **Settings > Environments > github-pages > Deployment branches and tags:** allow `dev`.
+2. Push to `dev`. The workflow in `.github/workflows/pages.yml` tests, builds and publishes the app. You can also run it by hand from the **Actions** tab (choose the `dev` branch).
 3. After about a minute the app is at `https://<user>.github.io/<repo>/`. For this repository that is https://sudheernookala.github.io/Imageviewer/.
 
-Only the default branch is published. Other branches and pull requests are built and tested, but not published.
+Other branches and pull requests are built and tested, but not published. To publish from another branch, change `'dev'` in the two `if:` lines of `.github/workflows/pages.yml`.
 
-If the site shows this README instead of the app, step 1 was skipped. Change the setting and run the workflow again.
+If the home page shows this README instead of the app, the Pages source is set to "Deploy from a branch". Switch it to **GitHub Actions** and run the workflow again. If the publish step fails within seconds, `dev` is not allowed in the `github-pages` environment (step 1).
 
 ### Deploy to GitLab Pages
 
