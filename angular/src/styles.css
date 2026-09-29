@@ -10,6 +10,9 @@
   --on-accent: #ffffff;
   --selected: #2b3d5c;
   --error: #f2555a;
+  --error-bg: #3a1d1f;
+  --warning: #f0b35a;
+  --warning-bg: #3a2e1a;
   --checker: #2a2b2f;
   color-scheme: dark;
 }
@@ -24,6 +27,9 @@
     --accent: #2f6fdb;
     --selected: #dde9ff;
     --error: #c9282d;
+    --error-bg: #fdecec;
+    --warning: #8a5a00;
+    --warning-bg: #fff4dc;
     --checker: #e4e4e8;
     color-scheme: light;
   }
@@ -38,6 +44,9 @@
   --accent: #2f6fdb;
   --selected: #dde9ff;
   --error: #c9282d;
+  --error-bg: #fdecec;
+  --warning: #8a5a00;
+  --warning-bg: #fff4dc;
   --checker: #e4e4e8;
   color-scheme: light;
 }

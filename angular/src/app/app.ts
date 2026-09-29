@@ -11,7 +11,7 @@ import {
 import { ImageViewerState } from '../../../public/viewer/image-viewer.js';
 import { FileSourceService, ScanResult } from './file-source.service';
 import { GuideComponent } from './guide/guide.component';
-import { ImageEntry, formatSize } from './image-files';
+import { ImageEntry, SUPPORTED_FORMATS_TEXT, SkippedFiles, formatSize } from './image-files';
 import { ImageViewerComponent } from './image-viewer/image-viewer.component';
 
 /** Rendering tens of thousands of rows freezes the page; the filter narrows it down. */
@@ -39,6 +39,8 @@ export class App {
   protected readonly filter = signal('');
   protected readonly status = signal('');
   protected readonly error = signal('');
+  /** Warning shown when some opened files were skipped. */
+  protected readonly notice = signal('');
   protected readonly busy = signal(false);
 
   // Popup viewer state
@@ -141,7 +143,7 @@ export class App {
     if (!url) return;
     const name = decodeURIComponent(new URL(url, document.baseURI).pathname.split('/').pop() || url);
     const entry: ImageEntry = { name, path: url, open: async () => url };
-    this.show({ label: 'Web address', entries: [entry], truncated: false });
+    this.show({ label: 'Web address', entries: [entry], truncated: false, skipped: new SkippedFiles() });
     this.openViewer(entry);
   }
 
@@ -240,11 +242,28 @@ export class App {
   }
 
   private show(result: ScanResult) {
+    const { skipped } = result;
+    if (!result.entries.length && skipped.count) {
+      // Nothing usable: keep the current list and say why.
+      this.notice.set('');
+      this.status.set(this.summary());
+      this.error.set(
+        `Nothing was opened. ${describeSkipped(skipped)} ${skipped.count === 1 ? 'is not a' : 'are not'} ` +
+          `supported image format${skipped.count === 1 ? '' : 's'}. Supported formats: ${SUPPORTED_FORMATS_TEXT}.`
+      );
+      return;
+    }
     this.label.set(result.label);
     this.entries.set(result.entries);
     this.truncated.set(result.truncated);
     this.filter.set('');
     this.error.set('');
+    this.notice.set(
+      skipped.count
+        ? `Skipped ${skipped.count} file${skipped.count === 1 ? '' : 's'} with an unsupported format: ` +
+            `${describeSkipped(skipped)}. Supported formats: ${SUPPORTED_FORMATS_TEXT}.`
+        : ''
+    );
     this.status.set(this.summary());
   }
 
@@ -253,4 +272,11 @@ export class App {
     const more = this.truncated() ? ' (stopped at the limit — open a smaller folder)' : '';
     return n ? `${n} image${n === 1 ? '' : 's'}${more}` : 'No images found in this folder';
   }
+}
+
+/** "a.docx, b.step and 3 more" */
+function describeSkipped(skipped: SkippedFiles): string {
+  const names = skipped.examples.join(', ');
+  const rest = skipped.count - skipped.examples.length;
+  return rest > 0 ? `${names} and ${rest} more` : names;
 }

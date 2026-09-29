@@ -30,7 +30,16 @@
            [value]="filter()" (input)="filter.set($any($event.target).value)">
   </div>
   @if (error()) {
-    <p class="status error" role="alert">{{ error() }}</p>
+    <div class="banner error" role="alert">
+      <p>{{ error() }}</p>
+      <button type="button" class="dismiss" (click)="error.set('')" aria-label="Dismiss message" title="Dismiss">✕</button>
+    </div>
+  }
+  @if (notice()) {
+    <div class="banner warning" role="status">
+      <p>{{ notice() }}</p>
+      <button type="button" class="dismiss" (click)="notice.set('')" aria-label="Dismiss message" title="Dismiss">✕</button>
+    </div>
   }
 
   <ul #list class="list" aria-label="Images" (keydown)="onListKey($event)">

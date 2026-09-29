@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ImageEntry, byPath, isImageName } from './image-files';
+import { ImageEntry, SkippedFiles, byPath, isImageName } from './image-files';
 
 // Chromium-only API, not in TypeScript's DOM types yet.
 declare global {
@@ -15,6 +15,8 @@ export interface ScanResult {
   label: string;
   entries: ImageEntry[];
   truncated: boolean;
+  /** Files left out because they are not supported images (hidden files are not counted). */
+  skipped: SkippedFiles;
 }
 
 /**
@@ -53,7 +55,7 @@ export class FileSourceService {
       size: s.size,
       open: async () => (s.data ? base64ToBlob(s.data) : `samples/${encodeURIComponent(s.name)}`),
     }));
-    return { label: 'Sample images', entries, truncated: false };
+    return { label: 'Sample images', entries, truncated: false, skipped: new SkippedFiles() };
   }
 
   /** Chromium folder picker. Resolves null if the user cancels. */
@@ -66,6 +68,7 @@ export class FileSourceService {
       throw err;
     }
     const entries: ImageEntry[] = [];
+    const skipped = new SkippedFiles();
     let truncated = false;
 
     const walk = async (dir: FileSystemDirectoryHandle, prefix: string): Promise<void> => {
@@ -82,29 +85,39 @@ export class FileSourceService {
           const fileHandle = handle as FileSystemFileHandle;
           entries.push({ name: handle.name, path, open: () => fileHandle.getFile() });
           if (entries.length % 200 === 0) onProgress?.(entries.length);
+        } else {
+          skipped.add(path);
         }
       }
     };
     await walk(root, '');
     entries.sort(byPath);
-    return { label: root.name, entries, truncated };
+    return { label: root.name, entries, truncated, skipped };
   }
 
   /** Files from <input type="file"> (single files, or a whole folder via webkitdirectory). */
   fromFileList(files: FileList, label: string): ScanResult {
     const entries: ImageEntry[] = [];
+    const skipped = new SkippedFiles();
+    let truncated = false;
     for (const file of Array.from(files)) {
       const path = file.webkitRelativePath || file.name;
-      // Drop the top folder name ("Pictures/a/b.jpg" -> "a/b.jpg") and hidden folders.
+      // Drop the top folder name ("Pictures/a/b.jpg" -> "a/b.jpg"). Hidden files (.DS_Store etc.) are ignored silently.
       const rel = file.webkitRelativePath ? path.split('/').slice(1).join('/') : path;
       if (rel.split('/').some((part) => part.startsWith('.'))) continue;
-      if (!isImageName(file.name) && !file.type.startsWith('image/')) continue;
+      if (!isImageName(file.name)) {
+        skipped.add(rel);
+        continue;
+      }
+      if (entries.length >= MAX_IMAGES) {
+        truncated = true;
+        continue;
+      }
       entries.push({ name: file.name, path: rel, size: file.size, open: async () => file });
-      if (entries.length >= MAX_IMAGES) break;
     }
     entries.sort(byPath);
     const top = files[0]?.webkitRelativePath?.split('/')[0];
-    return { label: top || label, entries, truncated: entries.length >= MAX_IMAGES };
+    return { label: top || label, entries, truncated, skipped };
   }
 }
 

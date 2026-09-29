@@ -27,6 +27,14 @@
 .status { margin: 0; color: var(--muted); font-size: 12px; word-break: break-word; }
 .status.error { color: var(--error); }
 .hint { margin: 0; color: var(--muted); font-size: 12px; }
+.banner {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 8px 8px 12px; border-radius: 8px; border: 1px solid; font-size: 13px;
+}
+.banner p { margin: 0; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.banner.error { color: var(--error); border-color: var(--error); background: var(--error-bg); }
+.banner.warning { color: var(--warning); border-color: var(--warning); background: var(--warning-bg); }
+.banner .dismiss { flex: none; padding: 0 6px; border: 0; background: transparent; color: inherit; line-height: 1.5; }
 
 .list {
   list-style: none; margin: 0; padding: 4px; overflow: auto; flex: 1; min-height: 120px;

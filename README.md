@@ -24,6 +24,8 @@ The viewer is a separate, drop-in web component (`<image-viewer>`), so you can r
 
 Your files stay on your computer. The app reads them inside your browser and uploads nothing.
 
+**Unsupported files:** if a folder or your selection contains files that are not a [supported format](#supported-formats) (for example `.docx`, `.step`, `.psd`), the app lists the images it can open and shows a yellow message naming the skipped files. If none of the files are supported, nothing changes and a red message explains why. Hidden system files such as `.DS_Store` are ignored without a message.
+
 **In the list:** type in **Filter by name** to narrow it down. ↑ / ↓ move through the list and **Enter** opens the image.
 
 **In the popup:**

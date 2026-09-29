@@ -4,6 +4,9 @@ export const IMAGE_EXTENSIONS = new Set([
   'bmp', 'dib', 'ico', 'cur', 'svg', 'tif', 'tiff', 'heic', 'heif', 'jxl',
 ]);
 
+/** Shown to users when a file is not supported. */
+export const SUPPORTED_FORMATS_TEXT = 'PNG, JPG/JPEG, GIF, WebP, AVIF, BMP, ICO, SVG, TIFF/TIF (HEIC and JPEG XL in Safari only)';
+
 export function isImageName(name: string): boolean {
   const dot = name.lastIndexOf('.');
   return dot > 0 && IMAGE_EXTENSIONS.has(name.slice(dot + 1).toLowerCase());
@@ -16,6 +19,18 @@ export interface ImageEntry {
   path: string;
   size?: number;
   open(): Promise<string | Blob>;
+}
+
+/** Files that were left out because they are not supported images. */
+export class SkippedFiles {
+  count = 0;
+  /** The first few names, for the message. */
+  readonly examples: string[] = [];
+
+  add(path: string) {
+    this.count++;
+    if (this.examples.length < 5) this.examples.push(path);
+  }
 }
 
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
